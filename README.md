@@ -12,9 +12,11 @@ The app is built with PowerShell 5.1, WinForms, and WPF. No .NET SDK build step 
 | --- | --- |
 | ![Main PC Status flyout](assets/screenshots/main-page.svg) | ![PC Status settings page](assets/screenshots/settings-page.svg) |
 
-Dark mode main flyout:
+Dark mode:
 
-![PC Status dark mode main flyout](assets/screenshots/main-page-dark.svg)
+| Main flyout | Settings |
+| --- | --- |
+| ![PC Status dark mode main flyout](assets/screenshots/main-page-dark.svg) | ![PC Status dark mode settings page](assets/screenshots/settings-page-dark.svg) |
 
 ## Features
 
