@@ -27,7 +27,7 @@ Dark mode:
 - Light, Dark, and Auto theme modes.
 - Per-card visibility toggles.
 - Eco, Balanced, and Fast refresh presets.
-- Optional start with Windows and run elevated on launch.
+- Optional start with Windows.
 - Detailed or minimal tray tooltip.
 - Missing metrics render as `Unavailable` instead of crashing.
 
@@ -39,11 +39,7 @@ powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\WindowsDashboard.p
 
 The app adds a tray icon. Click the icon to open or hide the flyout.
 
-By default, PC Status relaunches itself as administrator for broader Windows performance-counter access. For development-only runs without elevation, use:
-
-```powershell
-powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\src\WindowsDashboard.ps1 -NoElevate
-```
+PC Status does not require administrator access for its current battery, usage, GPU, process, and settings features.
 
 Settings are stored at:
 
@@ -54,7 +50,7 @@ Settings are stored at:
 ## Settings
 
 - `Appearance`: Light, Dark, or Auto theme.
-- `Startup`: start with Windows and run elevated on launch.
+- `Startup`: start with Windows.
 - `Performance`: Eco, Balanced, or Fast refresh preset.
 - `Dashboard Cards`: show or hide Battery + Power, CPU, Memory, GPU, and Top Processes.
 - `Tray`: detailed or minimal tray tooltip.

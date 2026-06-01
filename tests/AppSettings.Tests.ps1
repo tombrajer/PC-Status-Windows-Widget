@@ -34,7 +34,6 @@ try {
     $defaults = Get-AppSettings -Path $settingsPath
     Assert-Equal 'Auto' $defaults.ThemeMode 'Default theme mode'
     Assert-Equal $false $defaults.StartWithWindows 'Default startup setting'
-    Assert-Equal $true $defaults.RunElevatedOnLaunch 'Default elevation setting'
     Assert-Equal 'Balanced' $defaults.RefreshPreset 'Default refresh preset'
     Assert-Equal $true $defaults.ShowBatteryPower 'Default battery card setting'
     Assert-Equal $true $defaults.ShowCpuUsage 'Default CPU card setting'

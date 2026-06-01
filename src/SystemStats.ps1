@@ -177,32 +177,14 @@ function Get-LibreHardwareMonitorDllPath {
     return $null
 }
 
-function Test-IsAdministrator {
-    try {
-        $identity = [Security.Principal.WindowsIdentity]::GetCurrent()
-        $principal = New-Object Security.Principal.WindowsPrincipal($identity)
-        return $principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)
-    }
-    catch {
-        return $false
-    }
-}
-
 function Get-CpuTemperatureUnavailableSource {
-    param(
-        [bool] $HasLibreHardwareMonitor,
-        [bool] $IsAdministrator
-    )
+    param([bool] $HasLibreHardwareMonitor)
 
     if (-not $HasLibreHardwareMonitor) {
         return 'Install CPU temperature support from Settings'
     }
 
-    if (-not $IsAdministrator) {
-        return 'Run as administrator for CPU temperature'
-    }
-
-    return 'Elevated, but CPU temperature values are not readable'
+    return 'CPU temperature values are not readable'
 }
 
 function Import-LibreHardwareMonitorAssemblies {
@@ -281,7 +263,7 @@ function Get-LibreHardwareMonitorCpuTemperature {
         if ($cpuTemperatureSensorCount -gt 0) {
             return [pscustomobject]@{
                 Value = $null
-                Source = Get-CpuTemperatureUnavailableSource -HasLibreHardwareMonitor $true -IsAdministrator (Test-IsAdministrator)
+                Source = Get-CpuTemperatureUnavailableSource -HasLibreHardwareMonitor $true
             }
         }
     }
@@ -302,14 +284,6 @@ function Get-LibreHardwareMonitorCpuTemperature {
 
 function Get-CpuTemperatureSnapshot {
     $hasLibreHardwareMonitor = $null -ne (Get-LibreHardwareMonitorDllPath)
-    $isAdministrator = Test-IsAdministrator
-
-    if ($hasLibreHardwareMonitor -and -not $isAdministrator) {
-        return [pscustomobject]@{
-            Value = $null
-            Source = Get-CpuTemperatureUnavailableSource -HasLibreHardwareMonitor $true -IsAdministrator $false
-        }
-    }
 
     $libreHardwareMonitor = Get-LibreHardwareMonitorCpuTemperature
     if ($libreHardwareMonitor) {
@@ -326,7 +300,7 @@ function Get-CpuTemperatureSnapshot {
 
     return [pscustomobject]@{
         Value = $null
-        Source = Get-CpuTemperatureUnavailableSource -HasLibreHardwareMonitor $hasLibreHardwareMonitor -IsAdministrator $isAdministrator
+        Source = Get-CpuTemperatureUnavailableSource -HasLibreHardwareMonitor $hasLibreHardwareMonitor
     }
 }
 

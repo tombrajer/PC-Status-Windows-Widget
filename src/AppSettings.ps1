@@ -13,7 +13,6 @@ function New-DefaultAppSettings {
     [pscustomobject]@{
         ThemeMode = 'Auto'
         StartWithWindows = $false
-        RunElevatedOnLaunch = $true
         RefreshPreset = 'Balanced'
         ShowBatteryPower = $true
         ShowCpuUsage = $true
@@ -73,7 +72,6 @@ function Normalize-AppSettings {
     [pscustomobject]@{
         ThemeMode = Normalize-ThemeMode $Settings.ThemeMode
         StartWithWindows = ConvertTo-BoolSetting -Value $Settings.StartWithWindows -Default $defaults.StartWithWindows
-        RunElevatedOnLaunch = ConvertTo-BoolSetting -Value $Settings.RunElevatedOnLaunch -Default $defaults.RunElevatedOnLaunch
         RefreshPreset = Normalize-RefreshPreset $Settings.RefreshPreset
         ShowBatteryPower = ConvertTo-BoolSetting -Value $Settings.ShowBatteryPower -Default $defaults.ShowBatteryPower
         ShowCpuUsage = ConvertTo-BoolSetting -Value $Settings.ShowCpuUsage -Default $defaults.ShowCpuUsage

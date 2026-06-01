@@ -80,9 +80,8 @@ $sensorObjects = @(
 $bestCpuTemp = Select-BestCpuTemperature -Sensors $sensorObjects
 Assert-Equal 66 $bestCpuTemp.Value 'CPU package temperature is preferred over core sensors'
 Assert-Equal 'CPU Package' $bestCpuTemp.Name 'CPU package sensor name is preserved'
-Assert-Equal 'Run as administrator for CPU temperature' (Get-CpuTemperatureUnavailableSource -HasLibreHardwareMonitor $true -IsAdministrator $false) 'Non-admin temperature guidance'
-Assert-Equal 'Elevated, but CPU temperature values are not readable' (Get-CpuTemperatureUnavailableSource -HasLibreHardwareMonitor $true -IsAdministrator $true) 'Elevated unavailable temperature guidance'
-Assert-Equal 'Install CPU temperature support from Settings' (Get-CpuTemperatureUnavailableSource -HasLibreHardwareMonitor $false -IsAdministrator $false) 'Missing library temperature guidance'
+Assert-Equal 'CPU temperature values are not readable' (Get-CpuTemperatureUnavailableSource -HasLibreHardwareMonitor $true) 'Unavailable temperature guidance'
+Assert-Equal 'Install CPU temperature support from Settings' (Get-CpuTemperatureUnavailableSource -HasLibreHardwareMonitor $false) 'Missing library temperature guidance'
 Assert-Equal 'Healthy' (Get-SystemHealthScore -CpuUsage 25 -RamUsage 40 -GpuUsage 20) 'Healthy score'
 Assert-Equal 'Busy' (Get-SystemHealthScore -CpuUsage 70 -RamUsage 50 -GpuUsage 20) 'Busy score'
 Assert-Equal 'Heavy Load' (Get-SystemHealthScore -CpuUsage 95 -RamUsage 50 -GpuUsage 20) 'Heavy load score'

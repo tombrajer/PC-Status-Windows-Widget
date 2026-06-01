@@ -1,6 +1,5 @@
 param(
-    [switch] $ValidateOnly,
-    [switch] $NoElevate
+    [switch] $ValidateOnly
 )
 
 $ErrorActionPreference = 'Stop'
@@ -28,11 +27,6 @@ function Write-AppLog {
 
     $line = "{0:u} {1}" -f (Get-Date), $Message
     Add-Content -Path (Get-AppLogPath) -Value $line -Encoding UTF8
-}
-
-if (-not $ValidateOnly -and -not $NoElevate -and $script:Settings.RunElevatedOnLaunch -and -not (Test-IsAdministrator)) {
-    Start-Process powershell.exe -Verb RunAs -WindowStyle Hidden -ArgumentList "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$PSCommandPath`""
-    return
 }
 
 function Hide-ConsoleWindow {
@@ -397,9 +391,8 @@ $xaml = @'
                     <Border CornerRadius="16" Background="#FFFFFF" BorderBrush="#E2E3DF" BorderThickness="1" Padding="18,14" Margin="0,0,0,10">
                         <StackPanel>
                             <TextBlock Text="Startup" FontSize="14" FontWeight="SemiBold" Foreground="#191919"/>
-                            <TextBlock Text="Control how PC Status starts and whether it requests UAC." Margin="0,3,0,0" FontSize="11" Foreground="#60625E"/>
+                            <TextBlock Text="Control whether PC Status starts with Windows." Margin="0,3,0,0" FontSize="11" Foreground="#60625E"/>
                             <CheckBox x:Name="StartWithWindowsCheck" Content="Start with Windows" Margin="0,10,0,0" Foreground="#191919"/>
-                            <CheckBox x:Name="RunElevatedCheck" Content="Run elevated on launch" Margin="0,8,0,0" Foreground="#191919"/>
                         </StackPanel>
                     </Border>
 
@@ -507,7 +500,7 @@ $names = @(
     'CpuCard', 'CpuUsageValue', 'CpuUsageProgress', 'RamCard', 'RamValue', 'RamDetail', 'GpuCard', 'GpuUsageValue', 'GpuUsageProgress',
     'Process1Name', 'Process1Cpu', 'Process1Memory', 'Process2Name', 'Process2Cpu', 'Process2Memory',
     'Process3Name', 'Process3Cpu', 'Process3Memory', 'ProcessCard',
-    'SettingsAction', 'TaskManagerAction', 'ThemeModeCombo', 'StartWithWindowsCheck', 'RunElevatedCheck',
+    'SettingsAction', 'TaskManagerAction', 'ThemeModeCombo', 'StartWithWindowsCheck',
     'RefreshPresetCombo', 'ShowBatteryPowerCheck', 'ShowCpuCheck', 'ShowMemoryCheck', 'ShowGpuCheck', 'ShowTopProcessesCheck', 'DetailedTooltipCheck',
     'OpenLogsButton', 'ResetDefaultsButton', 'QuitButton'
 )
@@ -726,7 +719,6 @@ function Update-SettingsControls {
         Select-ComboItem -ComboBox $ui.ThemeModeCombo -Content $script:Settings.ThemeMode
         Select-ComboItem -ComboBox $ui.RefreshPresetCombo -Content $script:Settings.RefreshPreset
         $ui.StartWithWindowsCheck.IsChecked = [bool] $script:Settings.StartWithWindows
-        $ui.RunElevatedCheck.IsChecked = [bool] $script:Settings.RunElevatedOnLaunch
         $ui.ShowBatteryPowerCheck.IsChecked = [bool] $script:Settings.ShowBatteryPower
         $ui.ShowCpuCheck.IsChecked = [bool] $script:Settings.ShowCpuUsage
         $ui.ShowMemoryCheck.IsChecked = [bool] $script:Settings.ShowMemoryUsage
@@ -779,7 +771,6 @@ function Save-SettingsFromControls {
     $updated = [pscustomobject]@{
         ThemeMode = Normalize-ThemeMode (Get-SelectedComboContent $ui.ThemeModeCombo)
         StartWithWindows = [bool] $ui.StartWithWindowsCheck.IsChecked
-        RunElevatedOnLaunch = [bool] $ui.RunElevatedCheck.IsChecked
         RefreshPreset = Normalize-RefreshPreset (Get-SelectedComboContent $ui.RefreshPresetCombo)
         ShowBatteryPower = [bool] $ui.ShowBatteryPowerCheck.IsChecked
         ShowCpuUsage = [bool] $ui.ShowCpuCheck.IsChecked
@@ -1039,15 +1030,6 @@ function Hide-Dashboard {
     $window.Hide()
 }
 
-function Restart-AsAdministrator {
-    $notifyIcon.Visible = $false
-    $notifyIcon.Dispose()
-    Stop-StatsWorker
-    $window.Close()
-    Start-Process powershell.exe -Verb RunAs -WindowStyle Hidden -ArgumentList "-NoProfile -WindowStyle Hidden -ExecutionPolicy Bypass -File `"$PSCommandPath`""
-    [System.Windows.Application]::Current.Shutdown()
-}
-
 function Show-Settings {
     if (-not $window.IsVisible) {
         Show-Dashboard
@@ -1123,7 +1105,6 @@ function Add-SettingsCheckHandlers {
 }
 
 Add-SettingsCheckHandlers -CheckBox $ui.StartWithWindowsCheck -LogName 'Startup'
-Add-SettingsCheckHandlers -CheckBox $ui.RunElevatedCheck -LogName 'Elevation'
 Add-SettingsCheckHandlers -CheckBox $ui.ShowBatteryPowerCheck -LogName 'Battery card'
 Add-SettingsCheckHandlers -CheckBox $ui.ShowCpuCheck -LogName 'CPU card'
 Add-SettingsCheckHandlers -CheckBox $ui.ShowMemoryCheck -LogName 'Memory card'
@@ -1168,16 +1149,12 @@ $notifyIcon.Visible = $true
 $contextMenu = New-Object System.Windows.Forms.ContextMenuStrip
 $openItem = $contextMenu.Items.Add('Open')
 $settingsItem = $contextMenu.Items.Add('Settings')
-$adminItem = $contextMenu.Items.Add('Restart as administrator')
 $quitItem = $contextMenu.Items.Add('Quit')
 $openItem.Add_Click({
     try { Show-Dashboard } catch { Write-AppLog "Open failed: $($_.Exception.ToString())" }
 })
 $settingsItem.Add_Click({
     try { Show-Settings } catch { Write-AppLog "Settings failed: $($_.Exception.ToString())" }
-})
-$adminItem.Add_Click({
-    try { Restart-AsAdministrator } catch { Write-AppLog "Restart as administrator failed: $($_.Exception.ToString())" }
 })
 $quitItem.Add_Click({
     try {
