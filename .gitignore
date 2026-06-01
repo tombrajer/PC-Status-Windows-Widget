@@ -1,0 +1,7 @@
+.superpowers/
+*.log
+*.tmp
+lib/packages/
+lib/LibreHardwareMonitorLib.*/
+lib/*.nupkg
+lib/*.zip
