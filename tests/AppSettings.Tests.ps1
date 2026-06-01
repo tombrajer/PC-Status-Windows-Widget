@@ -89,10 +89,30 @@ try {
     $theme = Get-ThemePalette -EffectiveThemeMode 'Dark'
     Assert-Equal '#111312' $theme.ShellBackground 'Dark shell background'
     Assert-True (-not [string]::IsNullOrWhiteSpace($theme.PrimaryText)) 'Dark palette primary text'
+
+    $shortcutPath = Join-Path $PSScriptRoot "pc-status-startup-$PID.lnk"
+    $launcherPath = Join-Path $PSScriptRoot "pc-status-launcher-$PID.vbs"
+    $scriptPath = Join-Path $PSScriptRoot '..\src\WindowsDashboard.ps1'
+    Set-StartWithWindows -Enabled $true -ScriptPath $scriptPath -ShortcutPath $shortcutPath -LauncherPath $launcherPath
+    $shell = New-Object -ComObject WScript.Shell
+    $shortcut = $shell.CreateShortcut($shortcutPath)
+    Assert-Equal 'wscript.exe' (Split-Path -Leaf $shortcut.TargetPath) 'Startup shortcut uses windowless script host'
+    Assert-Equal "`"$launcherPath`"" $shortcut.Arguments 'Startup shortcut points to launcher script'
+    Assert-True (Test-Path -LiteralPath $launcherPath) 'Startup launcher script is created'
+    $launcherContent = Get-Content -Path $launcherPath -Raw
+    Assert-True ($launcherContent -like '*shell.Run*0, False*') 'Startup launcher runs without a visible window'
 }
 finally {
     if (Test-Path -LiteralPath $settingsPath) {
         Remove-Item -LiteralPath $settingsPath -Force
+    }
+
+    if ($shortcutPath -and (Test-Path -LiteralPath $shortcutPath)) {
+        Remove-Item -LiteralPath $shortcutPath -Force
+    }
+
+    if ($launcherPath -and (Test-Path -LiteralPath $launcherPath)) {
+        Remove-Item -LiteralPath $launcherPath -Force
     }
 }
 

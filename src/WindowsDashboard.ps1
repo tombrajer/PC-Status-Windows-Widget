@@ -29,6 +29,15 @@ function Write-AppLog {
     Add-Content -Path (Get-AppLogPath) -Value $line -Encoding UTF8
 }
 
+if (-not $ValidateOnly -and $script:Settings.StartWithWindows) {
+    try {
+        Set-StartWithWindows -Enabled $true -ScriptPath $PSCommandPath
+    }
+    catch {
+        Write-AppLog "Startup shortcut refresh failed: $($_.Exception.ToString())"
+    }
+}
+
 function Hide-ConsoleWindow {
     if ($ValidateOnly) {
         return

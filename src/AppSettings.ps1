@@ -233,16 +233,47 @@ function Get-StartupShortcutPath {
     return (Join-Path $startupDirectory 'PC Status.lnk')
 }
 
+function Get-StartupLauncherPath {
+    $baseDirectory = Split-Path -Parent (Get-AppSettingsPath)
+    return (Join-Path $baseDirectory 'Launch-PCStatus.vbs')
+}
+
+function New-StartupLauncher {
+    param(
+        [Parameter(Mandatory = $true)] [string] $ScriptPath,
+        [Parameter(Mandatory = $true)] [string] $LauncherPath
+    )
+
+    $directory = Split-Path -Parent $LauncherPath
+    if (-not (Test-Path -LiteralPath $directory)) {
+        New-Item -ItemType Directory -Path $directory -Force | Out-Null
+    }
+
+    $workingDirectory = (Split-Path -Parent $ScriptPath) -replace '"', '""'
+    $escapedScriptPath = $ScriptPath -replace '"', '""'
+    $content = @"
+Set shell = CreateObject("WScript.Shell")
+shell.CurrentDirectory = "$workingDirectory"
+shell.Run "powershell.exe -NoProfile -ExecutionPolicy Bypass -File ""$escapedScriptPath""", 0, False
+"@
+
+    Set-Content -Path $LauncherPath -Value $content -Encoding ASCII
+}
+
 function Set-StartWithWindows {
     param(
         [Parameter(Mandatory = $true)] [bool] $Enabled,
         [Parameter(Mandatory = $true)] [string] $ScriptPath,
-        [string] $ShortcutPath = (Get-StartupShortcutPath)
+        [string] $ShortcutPath = (Get-StartupShortcutPath),
+        [string] $LauncherPath = (Get-StartupLauncherPath)
     )
 
     if (-not $Enabled) {
         if (Test-Path -LiteralPath $ShortcutPath) {
             Remove-Item -LiteralPath $ShortcutPath -Force
+        }
+        if (Test-Path -LiteralPath $LauncherPath) {
+            Remove-Item -LiteralPath $LauncherPath -Force
         }
         return
     }
@@ -252,11 +283,13 @@ function Set-StartWithWindows {
         New-Item -ItemType Directory -Path $directory -Force | Out-Null
     }
 
+    New-StartupLauncher -ScriptPath $ScriptPath -LauncherPath $LauncherPath
+
     $shell = New-Object -ComObject WScript.Shell
     $shortcut = $shell.CreateShortcut($ShortcutPath)
-    $shortcut.TargetPath = 'powershell.exe'
-    $shortcut.Arguments = "-NoProfile -ExecutionPolicy Bypass -File `"$ScriptPath`""
-    $shortcut.WorkingDirectory = Split-Path -Parent $ScriptPath
+    $shortcut.TargetPath = 'wscript.exe'
+    $shortcut.Arguments = "`"$LauncherPath`""
+    $shortcut.WorkingDirectory = Split-Path -Parent $LauncherPath
     $shortcut.IconLocation = "$env:SystemRoot\System32\shell32.dll,13"
     $shortcut.Save()
 }
