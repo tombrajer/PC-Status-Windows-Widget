@@ -49,6 +49,8 @@ Assert-Equal 'Microsoft Edge' (Get-ProcessDisplayName -ProcessName 'msedge') 'Ed
 Assert-Equal 'Windows Service Host' (Get-ProcessDisplayName -ProcessName 'svchost') 'Service host process display name'
 Assert-Equal 'Windows Search' (Get-ProcessDisplayName -ProcessName 'SearchHost') 'Search host process display name'
 Assert-Equal 'My Custom App' (Get-ProcessDisplayName -ProcessName 'myCustomApp') 'Fallback process display name'
+Assert-Equal 'msedge' (Get-ProcessCounterBaseName -InstanceName 'msedge#3') 'Counter instance suffix is removed'
+Assert-True ($null -eq (Get-ProcessCounterBaseName -InstanceName '_total')) 'Counter total instance is ignored'
 
 $cachedProcesses = @(
     [pscustomobject]@{ Name = 'Cached App'; ProcessName = 'cachedapp'; CpuPercent = 12.3; MemoryMb = 456; ProcessCount = 2 }

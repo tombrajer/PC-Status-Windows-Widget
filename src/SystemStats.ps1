@@ -485,51 +485,72 @@ function Get-ProcessDisplayName {
     return (Get-Culture).TextInfo.ToTitleCase($clean.ToLowerInvariant())
 }
 
+function Get-ProcessCounterBaseName {
+    param([string] $InstanceName)
+
+    if ([string]::IsNullOrWhiteSpace($InstanceName)) {
+        return $null
+    }
+
+    $name = $InstanceName.Trim()
+    if ($name -in @('_total', 'idle')) {
+        return $null
+    }
+
+    return ($name -replace '#\d+$', '')
+}
+
 function Get-TopCpuProcesses {
     param([int] $Count = 3)
 
     try {
         $processorCount = [Math]::Max(1, [Environment]::ProcessorCount)
-        $firstSample = @{}
-        foreach ($process in (Get-Process | Where-Object { $null -ne $_.CPU })) {
-            $firstSample[$process.Id] = [pscustomobject]@{
-                Name = $process.ProcessName
-                Cpu = [double] $process.CPU
-            }
-        }
-
-        Start-Sleep -Milliseconds 750
-
         $groups = @{}
-        foreach ($process in (Get-Process | Where-Object { $null -ne $_.CPU })) {
+        foreach ($process in (Get-Process)) {
             $name = $process.ProcessName
-            if (-not $groups.ContainsKey($name)) {
-                $groups[$name] = [pscustomobject]@{
+            $key = $name.ToLowerInvariant()
+            if (-not $groups.ContainsKey($key)) {
+                $groups[$key] = [pscustomobject]@{
                     Name = $name
-                    CpuDeltaSeconds = 0.0
+                    CpuPercent = 0.0
                     MemoryBytes = 0L
                     ProcessCount = 0
                 }
             }
 
-            $groups[$name].MemoryBytes += [int64] $process.WorkingSet64
-            $groups[$name].ProcessCount += 1
+            $groups[$key].MemoryBytes += [int64] $process.WorkingSet64
+            $groups[$key].ProcessCount += 1
+        }
 
-            if ($firstSample.ContainsKey($process.Id)) {
-                $delta = [Math]::Max(0, ([double] $process.CPU - [double] $firstSample[$process.Id].Cpu))
-                $groups[$name].CpuDeltaSeconds += $delta
+        $counterSamples = (Get-Counter '\Process(*)\% Processor Time' -SampleInterval 1 -MaxSamples 1 -ErrorAction Stop).CounterSamples
+        foreach ($sample in $counterSamples) {
+            $baseName = Get-ProcessCounterBaseName -InstanceName $sample.InstanceName
+            if (-not $baseName) {
+                continue
             }
+
+            $key = $baseName.ToLowerInvariant()
+            if (-not $groups.ContainsKey($key)) {
+                $groups[$key] = [pscustomobject]@{
+                    Name = $baseName
+                    CpuPercent = 0.0
+                    MemoryBytes = 0L
+                    ProcessCount = 0
+                }
+            }
+
+            $groups[$key].CpuPercent += ([double] $sample.CookedValue / $processorCount)
         }
 
         return @(
             $groups.Values |
-                Sort-Object -Property @{ Expression = { $_.CpuDeltaSeconds }; Descending = $true }, @{ Expression = { $_.MemoryBytes }; Descending = $true } |
+                Sort-Object -Property @{ Expression = { $_.CpuPercent }; Descending = $true }, @{ Expression = { $_.MemoryBytes }; Descending = $true } |
                 Select-Object -First $Count |
                 ForEach-Object {
                     [pscustomobject]@{
                         Name = Get-ProcessDisplayName -ProcessName $_.Name
                         ProcessName = $_.Name
-                        CpuPercent = [Math]::Round(($_.CpuDeltaSeconds / 0.75 / $processorCount) * 100, 1)
+                        CpuPercent = [Math]::Round([Math]::Max(0, [double] $_.CpuPercent), 1)
                         MemoryMb = [Math]::Round($_.MemoryBytes / 1MB, 0)
                         ProcessCount = $_.ProcessCount
                     }
