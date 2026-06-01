@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="520" height="650" viewBox="0 0 520 650" role="img" aria-labelledby="title desc">
+  <title id="title">PC Status main flyout preview</title>
+  <desc id="desc">The main PC Status tray flyout with battery, usage cards, and top CPU processes.</desc>
+  <rect width="520" height="650" rx="28" fill="#fbfbfa" stroke="#dfe2dc"/>
+  <g transform="translate(28 24)">
+    <circle cx="16" cy="20" r="12" fill="#1f8a70"/>
+    <text x="48" y="26" fill="#191919" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="700">PC Status</text>
+    <text x="48" y="56" fill="#60625e" font-family="Segoe UI, Arial, sans-serif" font-size="15">Healthy - CPU 34%, RAM 62%, GPU 12%</text>
+    <text x="452" y="26" fill="#60625e" font-family="Segoe UI, Arial, sans-serif" font-size="20" text-anchor="middle">x</text>
+  </g>
+  <line x1="0" x2="520" y1="92" y2="92" stroke="#ecedea"/>
+  <rect x="32" y="118" width="456" height="118" rx="18" fill="#eef8f4" stroke="#dce9e3"/>
+  <text x="58" y="154" fill="#191919" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700">Battery + Power</text>
+  <text x="58" y="202" fill="#1f8a70" font-family="Segoe UI, Arial, sans-serif" font-size="45" font-weight="800">100%</text>
+  <text x="462" y="160" fill="#1f8a70" font-family="Segoe UI, Arial, sans-serif" font-size="18" font-weight="700" text-anchor="end">Plugged in</text>
+  <text x="462" y="190" fill="#60625e" font-family="Segoe UI, Arial, sans-serif" font-size="13" text-anchor="end">AC power connected</text>
+  <g transform="translate(32 262)">
+    <rect width="136" height="126" rx="16" fill="#ffffff" stroke="#dfe2dc"/>
+    <text x="22" y="38" fill="#60625e" font-family="Segoe UI, Arial, sans-serif" font-size="15">CPU Usage</text>
+    <text x="22" y="83" fill="#1f8a70" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700">34%</text>
+    <rect x="22" y="100" width="92" height="7" fill="#d9dcd7"/>
+    <rect x="22" y="100" width="31" height="7" fill="#1f8a70"/>
+  </g>
+  <g transform="translate(192 262)">
+    <rect width="136" height="126" rx="16" fill="#ffffff" stroke="#dfe2dc"/>
+    <text x="22" y="38" fill="#60625e" font-family="Segoe UI, Arial, sans-serif" font-size="15">Memory</text>
+    <text x="22" y="83" fill="#1f8a70" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700">62%</text>
+    <text x="22" y="108" fill="#60625e" font-family="Segoe UI, Arial, sans-serif" font-size="13">9.7 / 15.6 GB</text>
+  </g>
+  <g transform="translate(352 262)">
+    <rect width="136" height="126" rx="16" fill="#ffffff" stroke="#dfe2dc"/>
+    <text x="22" y="38" fill="#60625e" font-family="Segoe UI, Arial, sans-serif" font-size="15">GPU Usage</text>
+    <text x="22" y="83" fill="#1f8a70" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="700">12%</text>
+    <rect x="22" y="100" width="92" height="7" fill="#d9dcd7"/>
+    <rect x="22" y="100" width="12" height="7" fill="#1f8a70"/>
+  </g>
+  <rect x="32" y="410" width="456" height="128" rx="16" fill="#ffffff" stroke="#dfe2dc"/>
+  <text x="56" y="445" fill="#191919" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">Top CPU Processes</text>
+  <text x="56" y="482" fill="#191919" font-family="Segoe UI, Arial, sans-serif" font-size="14">Microsoft Edge</text>
+  <text x="386" y="482" fill="#60625e" font-family="Segoe UI, Arial, sans-serif" font-size="14" text-anchor="end">4.2%</text>
+  <text x="462" y="482" fill="#60625e" font-family="Segoe UI, Arial, sans-serif" font-size="14" text-anchor="end">1840 MB</text>
+  <text x="56" y="511" fill="#191919" font-family="Segoe UI, Arial, sans-serif" font-size="14">Codex</text>
+  <text x="386" y="511" fill="#60625e" font-family="Segoe UI, Arial, sans-serif" font-size="14" text-anchor="end">1.1%</text>
+  <text x="462" y="511" fill="#60625e" font-family="Segoe UI, Arial, sans-serif" font-size="14" text-anchor="end">930 MB</text>
+  <rect x="0" y="590" width="520" height="60" rx="0" fill="#f6f6f4"/>
+  <text x="180" y="626" fill="#191919" font-family="Segoe UI, Arial, sans-serif" font-size="15" text-anchor="middle">Settings</text>
+  <text x="340" y="626" fill="#191919" font-family="Segoe UI, Arial, sans-serif" font-size="15" text-anchor="middle">Task Manager</text>
+</svg>
