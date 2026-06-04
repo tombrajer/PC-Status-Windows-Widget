@@ -126,6 +126,9 @@ function Set-WpfText {
 }
 
 function New-TrayIcon {
+    param([string] $Status = 'Unavailable')
+
+    $palette = Get-TrayIconPalette -Status $Status
     $bitmap = New-Object System.Drawing.Bitmap(64, 64)
     $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
     $graphics.CompositingQuality = [System.Drawing.Drawing2D.CompositingQuality]::HighQuality
@@ -134,8 +137,8 @@ function New-TrayIcon {
     $graphics.SmoothingMode = [System.Drawing.Drawing2D.SmoothingMode]::AntiAlias
     $graphics.Clear([System.Drawing.Color]::Transparent)
 
-    $outerBrush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb(31, 138, 112))
-    $outlinePen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb(19, 95, 78), 2)
+    $outerBrush = New-Object System.Drawing.SolidBrush([System.Drawing.Color]::FromArgb($palette.OuterRed, $palette.OuterGreen, $palette.OuterBlue))
+    $outlinePen = New-Object System.Drawing.Pen([System.Drawing.Color]::FromArgb($palette.OutlineRed, $palette.OutlineGreen, $palette.OutlineBlue), 2)
     $pulsePen = New-Object System.Drawing.Pen([System.Drawing.Color]::White, 5)
     $pulsePen.StartCap = [System.Drawing.Drawing2D.LineCap]::Round
     $pulsePen.EndCap = [System.Drawing.Drawing2D.LineCap]::Round
@@ -157,7 +160,24 @@ function New-TrayIcon {
     $outerBrush.Dispose()
     $outlinePen.Dispose()
     $pulsePen.Dispose()
+    $bitmap.Dispose()
     $icon
+}
+
+function Set-TrayIconStatus {
+    param([string] $Status)
+
+    if ($script:TrayIconStatus -eq $Status) {
+        return
+    }
+
+    $previousIcon = $notifyIcon.Icon
+    $notifyIcon.Icon = New-TrayIcon -Status $Status
+    $script:TrayIconStatus = $Status
+
+    if ($previousIcon) {
+        $previousIcon.Dispose()
+    }
 }
 
 $xaml = @'
@@ -890,6 +910,7 @@ function Apply-Snapshot {
     $message = if ($Snapshot.HealthLine) { $Snapshot.HealthLine } elseif ($Snapshot.Message) { $Snapshot.Message } else { 'Unable to refresh stats' }
 
     $ui.StatusDot.Fill = Get-StatusBrush $overallStatus
+    Set-TrayIconStatus -Status $overallStatus
     if (-not $script:IsSettingsPage) {
         $ui.MessageText.Text = $message
     }
@@ -970,6 +991,7 @@ function Update-Dashboard {
         Write-AppLog "Update-Dashboard failed: $($_.Exception.ToString())"
         $ui.MessageText.Text = 'Unable to refresh stats'
         $ui.StatusDot.Fill = Get-StatusBrush 'Hot'
+        Set-TrayIconStatus -Status 'Hot'
     }
 }
 
@@ -1151,7 +1173,8 @@ $ui.QuitButton.Add_Click({
 })
 
 $notifyIcon = New-Object System.Windows.Forms.NotifyIcon
-$notifyIcon.Icon = New-TrayIcon
+$script:TrayIconStatus = 'Unavailable'
+$notifyIcon.Icon = New-TrayIcon -Status $script:TrayIconStatus
 $notifyIcon.Text = $script:AppName
 $notifyIcon.Visible = $true
 

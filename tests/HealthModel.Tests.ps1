@@ -35,4 +35,24 @@ Assert-Equal 'Unavailable' (Format-MetricValue $metrics[2]) 'Formatted unavailab
 Assert-Equal 'Some sensors unavailable' (Get-HealthMessage -Status 'Normal' -HasUnavailable $true) 'Normal status with missing sensors'
 Assert-Equal 'Running warm' (Get-HealthMessage -Status 'Warm' -HasUnavailable $true) 'Warm status takes priority over missing sensors'
 
+$normalIcon = Get-TrayIconPalette -Status 'Normal'
+Assert-Equal 31 $normalIcon.OuterRed 'Normal tray icon outer red'
+Assert-Equal 138 $normalIcon.OuterGreen 'Normal tray icon outer green'
+Assert-Equal 112 $normalIcon.OuterBlue 'Normal tray icon outer blue'
+
+$warmIcon = Get-TrayIconPalette -Status 'Warm'
+Assert-Equal 191 $warmIcon.OuterRed 'Warm tray icon outer red'
+Assert-Equal 123 $warmIcon.OuterGreen 'Warm tray icon outer green'
+Assert-Equal 36 $warmIcon.OuterBlue 'Warm tray icon outer blue'
+
+$hotIcon = Get-TrayIconPalette -Status 'Hot'
+Assert-Equal 196 $hotIcon.OuterRed 'Hot tray icon outer red'
+Assert-Equal 57 $hotIcon.OuterGreen 'Hot tray icon outer green'
+Assert-Equal 48 $hotIcon.OuterBlue 'Hot tray icon outer blue'
+
+$unknownIcon = Get-TrayIconPalette -Status 'Unexpected'
+Assert-Equal 128 $unknownIcon.OuterRed 'Unknown tray icon falls back to unavailable red'
+Assert-Equal 130 $unknownIcon.OuterGreen 'Unknown tray icon falls back to unavailable green'
+Assert-Equal 126 $unknownIcon.OuterBlue 'Unknown tray icon falls back to unavailable blue'
+
 Write-Host 'HealthModel.Tests passed'

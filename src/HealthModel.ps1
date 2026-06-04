@@ -121,3 +121,50 @@ function Get-HealthMessage {
         default { return 'Some sensors unavailable' }
     }
 }
+
+function Get-TrayIconPalette {
+    param([string] $Status)
+
+    switch ($Status) {
+        'Normal' {
+            return [pscustomobject]@{
+                OuterRed = 31
+                OuterGreen = 138
+                OuterBlue = 112
+                OutlineRed = 19
+                OutlineGreen = 95
+                OutlineBlue = 78
+            }
+        }
+        'Warm' {
+            return [pscustomobject]@{
+                OuterRed = 191
+                OuterGreen = 123
+                OuterBlue = 36
+                OutlineRed = 141
+                OutlineGreen = 83
+                OutlineBlue = 20
+            }
+        }
+        'Hot' {
+            return [pscustomobject]@{
+                OuterRed = 196
+                OuterGreen = 57
+                OuterBlue = 48
+                OutlineRed = 139
+                OutlineGreen = 38
+                OutlineBlue = 31
+            }
+        }
+        default {
+            return [pscustomobject]@{
+                OuterRed = 128
+                OuterGreen = 130
+                OuterBlue = 126
+                OutlineRed = 92
+                OutlineGreen = 94
+                OutlineBlue = 91
+            }
+        }
+    }
+}
