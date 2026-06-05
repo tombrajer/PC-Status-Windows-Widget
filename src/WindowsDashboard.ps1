@@ -1034,6 +1034,12 @@ function Show-RefreshError {
     }
 }
 
+function Start-DashboardRefreshTimer {
+    if (-not $timer.IsEnabled) {
+        $timer.Start()
+    }
+}
+
 function Show-Dashboard {
     $workArea = [System.Windows.SystemParameters]::WorkArea
     $window.Left = $workArea.Right - $window.Width - 12
@@ -1044,9 +1050,7 @@ function Show-Dashboard {
         $window.Show()
     }
 
-    if (-not $timer.IsEnabled) {
-        $timer.Start()
-    }
+    Start-DashboardRefreshTimer
 
     $window.Topmost = $false
     $window.Topmost = $true
@@ -1054,10 +1058,6 @@ function Show-Dashboard {
 }
 
 function Hide-Dashboard {
-    if ($timer.IsEnabled) {
-        $timer.Stop()
-    }
-
     $window.Hide()
 }
 
@@ -1251,6 +1251,9 @@ else {
 
 Apply-Theme
 Update-Dashboard
+if (-not $ValidateOnly) {
+    Start-DashboardRefreshTimer
+}
 
 if ($ValidateOnly) {
     Show-Dashboard
